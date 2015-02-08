@@ -1,0 +1,9 @@
+
+server {
+
+    listen    80;
+    root   "/Applications/nginxstack/apps/logtime/htdocs";
+    server_name  subtitle.bmikaeli.fr www.subtitle.bmikaeli.fr;
+        
+    include "/Applications/nginxstack/apps/logtime/conf/nginx-app.conf";
+}
