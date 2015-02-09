@@ -30,10 +30,10 @@ $end = $_GET['end'] ? $_GET['end'] : date('Y-m-d');
                     <div class="four fields">
                         <div class="field">
                             <label class="label required">uid</label>
-                            <input name="uid" required="true"  maxlength="8" type="text" value="<?= $uid ?>">
+                            <input name="uid" required="true" maxlength="8" type="text" value="<?= $uid ?>">
                         </div>
                         <div class="field">
-                            <label class="label">uid a comparer</label>
+                            <label class="label" for="uidcmp">uid a comparer</label>
                             <input name="uidcmp" type="text" value="<?= $uidcmp ?>">
                         </div>
                         <div class="field">
@@ -49,17 +49,46 @@ $end = $_GET['end'] ? $_GET['end'] : date('Y-m-d');
             </div>
             <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
         </div>
+
+        <table class="ui table">
+            <thead>
+            <tr>
+                <th>uid</th>
+                <th>Temps total de cette semaine</th>
+                <th>Temps aujourdhui</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="positive">
+                <td>bmikaeli</td>
+                <td>13</td>
+                <td id="uid_today"></td>
+            </tr>
+            <tr class="negative">
+                <td>tdemay</td>
+                <td>12</td>
+                <td id="uidcmp_today">1</td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
+
+<?php
+if (strtotime($end) - strtotime($start) >= 10000000) {
+    die('too large');
+}
+
+?>
 <script>
     $(function () {
-        var json = "apiHighcharts.php";
+        var json = "readFromZaxchi.php";
         $.getJSON(json, {
             'uid': '<?= $uid ?>',
-            'uidcmp' : '<?= $uidcmp ?>',
-            'start' : '<?= $start ?>',
-            'end' : '<?= $end ?>',
+            'uidcmp': '<?= $uidcmp ?>',
+            'start': '<?= $start ?>',
+            'end': '<?= $end ?>'
         })
             .done(function (data) {
                 $('#container').highcharts({
@@ -74,7 +103,7 @@ $end = $_GET['end'] ? $_GET['end'] : date('Y-m-d');
                     },
                     tooltip: {
                         headerFormat: '<b>{series.name}</b><br>',
-                        pointFormat: '{point.x:%e %b %Y}: {point.y}'
+                        pointFormat: '{point.x:%e %b %Y}: {point.y} heures'
                     },
                     xAxis: {
                         type: 'datetime'
@@ -88,11 +117,32 @@ $end = $_GET['end'] ? $_GET['end'] : date('Y-m-d');
                 });
             });
     });
+
+    $(function () {
+        var json = "getTotalForToday.php";
+        $.getJSON(json, {
+            'uid': '<?= $uid ?>',
+        })
+            .done(function (data) {
+                $("#uid_today").html(data.nb);
+            })
+    });
+
+    $(function () {
+        var json = "getTotalForToday.php";
+        $.getJSON(json, {
+            'uid': '<?= $uidcmp ?>'
+        })
+            .done(function (data) {
+                $("#uidcmp_today").html(data.nb);
+            })
+    });
+
     $(function () {
         $('.datepicker').pickadate({
             formatSubmit: 'yyyy-mm-d',
             format: 'yyyy-mm-d',
-            hiddenSuffix : undefined,
+            hiddenSuffix: undefined,
             hiddenPrefix: undefined,
             hiddenName: undefined
         })
