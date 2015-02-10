@@ -76,18 +76,31 @@ $(document).ready(function () {
                         text: data_highchart.start + " - " + data_highchart.end
                     },
                     tooltip: {
+                        shared: true,
+                        crosshairs: true,
                         formatter: function () {
-                            var hour = this.y / 60;
-                            var min = Math.abs((Math.floor(hour) - hour) * 60);
-                            return Math.floor(hour) + " heures, " + Math.floor(min) + " minutes";
+                            var s = '<b>' + new Date(this.x) + '</b>';
+
+                            $.each(this.points, function () {
+                                var hour = this.y / 60;
+                                var min = Math.abs((Math.floor(hour) - hour) * 60);
+                                s += '<br/>' + this.series.name + ': ' + Math.floor(hour) + " heures, " + Math.floor(min) + " minutes";
+                            });
+                            return s;
                         }
                     },
                     xAxis: {
                         type: 'datetime'
                     },
                     yAxis: {
+                        labels: {
+                            formatter: function () {
+                                return '';
+                            }
+                        },
+
                         title: {
-                            text: 'Nombre d\'heures'
+                            text: ''
                         }
                     },
                     series: data
