@@ -8,5 +8,12 @@ $json = file_get_contents('http://timeat42.zaxchi.fr/api/get/history/' . $uid . 
 $obj = json_decode($json);
 $today = date('Y-m-d');
 
-echo json_encode(array('nb' => round($obj->time->$today, 2)));
+
+$hour = $obj->time->$today / 60;
+$min = abs((round($hour) - $hour) * 60);
+
+echo json_encode(array(
+    'hour' => round($hour),
+    'min' => round($min),
+));
 ?>
