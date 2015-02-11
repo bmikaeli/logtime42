@@ -7,7 +7,7 @@
     <script type="text/javascript" src="assets/js/picker.date.js"></script>
     <script type="text/javascript" src="assets/js/fr_FR.js"></script>
     <script type="text/javascript" src="assets/js/semantic.min.js"></script>
-    <script type="text/javascript" src="assets/js/app.js"></script>
+    <script type="text/javascript" src="assets/js/appAll.js"></script>
     <link rel="stylesheet" href="assets/css/default.css">
     <link rel="stylesheet" href="assets/css/default.date.css">
     <link rel="stylesheet" href="assets/css/semantic.min.css">
@@ -16,43 +16,28 @@
 <body>
 <br>
 <?php
-
-$uid = $_GET['uid'] ? $_GET['uid'] : '';
-$uidcmp = $_GET['uidcmp'] ? $_GET['uidcmp'] : '';
 $start = $_GET['start'] ? $_GET['start'] : date('Y-m-d', strtotime(date('Y-m-d') . " -2 WEEKS"));
 $end = $_GET['end'] ? $_GET['end'] : date('Y-m-d', strtotime(date('Y-m-d') . "+1 DAY"));
 
 $data_highchart = json_encode(array(
-    'uid' => $uid,
-    'uidcmp' => $uidcmp,
     'start' => $start,
     'end' => $end,
 ))
 ?>
-
 <div class="main container all" style="overflow: hidden">
     <div class="ui centered grid">
-
         <div class="twelve wide column">
             <div class="ui blue menu">
-                <a class="active item">
-                     Home
+                <a class=" item" href="index.php">
+                    Home
                 </a>
-                <a class="item" href="all.php">
-                     All
+                <a class="active item">
+                    All
                 </a>
             </div>
             <div class="four column centered row">
                 <form class="ui form">
                     <div class="five fields">
-                        <div class="field">
-                            <label class="label required">uid</label>
-                            <input name="uid" required="true" maxlength="8" type="text" value="<?= $uid ?>">
-                        </div>
-                        <div class="field">
-                            <label class="label" for="uidcmp">uid a comparer (optionnel)</label>
-                            <input name="uidcmp" type="text" value="<?= $uidcmp ?>">
-                        </div>
                         <div class="field">
                             <label class="label">Date de debut</label>
                             <input name="start" class="datepicker" type="text" value="<?= $start ?>">
@@ -69,37 +54,51 @@ $data_highchart = json_encode(array(
 
                 </form>
             </div>
-            <?php if ($uid): ?>
 
-                <div id="highcharts-data" data-value='<?= $data_highchart ?>'></div>
+            <div id="highcharts-data" data-value='<?= $data_highchart ?>'></div>
 
-                <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+            <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 
-                <table class="ui table">
-                    <thead>
+            <table class="ui table">
+                <thead>
+                <tr>
+                    <th>uid</th>
+                    <th>Temps total de cette semaine</th>
+                    <th>Temps aujourdhui</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php $users = json_decode(file_get_contents('http://timeat42.zaxchi.fr/api/get/user/'));
+                $i = 0; ?>
+                <?php foreach ($users as $user): $i++; ?>
                     <tr>
-                        <th>uid</th>
-                        <th>Temps total de cette semaine</th>
-                        <th>Temps aujourdhui</th>
+                        <td><?= $user ?></td>
+                        <td id="<?= $i ?>_week"></td>
+                        <td id="<?= $i ?>_day"></td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td><?= $uid ?></td>
-                        <td id="uid_week"></td>
-                        <td id="uid_today"></td>
-                    </tr>
-                    <?php if ($uidcmp): ?>
-                        <tr>
-                            <td><?= $uidcmp ?></td>
-                            <td id="uidcmp_week"></td>
-                            <td id="uidcmp_today"></td>
-                        </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
-
+                    <script>
+                        $(function () {
+                            var json = "getTotalForToday.php";
+                            $.getJSON(json, {
+                                'uid': '<?= $user ?>'
+                            })
+                                .done(function (data) {
+                                    $("#<?= $i ?>_day").html(data.hour + " heures, " + data.min + " minutes");
+                                })
+                        });
+                        $(function () {
+                            var json = "getTotalForWeek.php";
+                            $.getJSON(json, {
+                                'uid': '<?= $user ?>'
+                            })
+                                .done(function (data) {
+                                    $("#<?= $i ?>_week").html(data.hour + " heures, " + data.min + " minutes");
+                                })
+                        });
+                    </script>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
