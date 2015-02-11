@@ -14,8 +14,9 @@ foreach ($obj->time as $item) {
 $hour = $total / 60;
 $min = abs((round($hour) - $hour) * 60);
 
+
 echo json_encode(array(
-    'hour' => round($hour),
+    'hour' => floor($hour),
     'min' => round($min),
 ));
 ?>
